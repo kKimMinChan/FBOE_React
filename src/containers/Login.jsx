@@ -1,14 +1,16 @@
-import { useState, Redirect } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
 import { login } from "../actions/auth";
+import "./Login.css";
+import { useEffect } from "react";
 
 const Login = ({ login, isAuthenticated }) => {
+  let navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
-
   const { username, password } = formData;
 
   function onChange(e) {
@@ -17,55 +19,53 @@ const Login = ({ login, isAuthenticated }) => {
 
   function onSubmit(e) {
     e.preventDefault();
-
     login(username, password);
   }
 
-  // Is the user authenticated?
-  // Redirect them to the home page
-  if (isAuthenticated) {
-    return <Redirect to="/" />;
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      return navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
-    <div className="container mt-5">
-      <h1>Sign In</h1>
-      <p>Sign into your Account</p>
-      <form onSubmit={onSubmit}>
-        <div className="form-group">
+    <section className="signin">
+      <h1>로그인</h1>
+      <div className="signin__card">
+        <h2>
+          <strong>Welcome!</strong> neuralDrop에 오신 것을 환영합니다.
+        </h2>
+        <form onSubmit={onSubmit}>
           <input
             type="text"
-            className="form-control"
-            placeholder="username"
             name="username"
             value={username}
+            placeholder="아이디를 입력하세요."
             onChange={onChange}
             required
           />
-        </div>
-        <div className="form-group">
           <input
             type="password"
-            className="form-control"
-            placeholder="password"
             name="password"
             value={password}
+            placeholder="비밀번호를 입력하세요."
             onChange={onChange}
-            minLength="6"
             required
           />
+          <input type="submit" value="login" />
+          <p>
+            * 비밀번호를 타 사이트와 같이 사용할 경우 도용 위험이 있으니,
+            {<br></br>}
+            정기적으로 비밀번호를 변경하세요!
+          </p>
+        </form>
+        <div className="actions">
+          <Link to="/SignUp">회원가입</Link>
+          <Link to="/FindId">아이디 찾기</Link>
+          <Link to="/reset-password">비밀번호 찾기</Link>
         </div>
-        <button className="btn btn-primary" type="submit">
-          Login
-        </button>
-      </form>
-      <p className="mt-3">
-        Don't have an account? <Link to="/signup">Sign Up</Link>
-      </p>
-      <p className="mt-3">
-        Forgot your Password? <Link to="/reset-password">Reset Password</Link>
-      </p>
-    </div>
+      </div>
+    </section>
   );
 };
 

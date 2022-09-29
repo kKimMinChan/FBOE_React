@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
-import { reset_password } from "../actions/auth";
-import { useEffect } from "react";
+import { Find_Id } from "../actions/auth";
 
-const ResetPassword = ({ reset_password }) => {
+const FindId = ({ Find_Id }) => {
   let navigate = useNavigate();
   const [requestSent, setRequestSent] = useState(false);
   const [formData, setFormData] = useState({
@@ -20,7 +19,7 @@ const ResetPassword = ({ reset_password }) => {
   function onSubmit(e) {
     e.preventDefault();
 
-    reset_password(email);
+    Find_Id(email);
     setRequestSent(true);
   }
 
@@ -36,7 +35,7 @@ const ResetPassword = ({ reset_password }) => {
 
   return (
     <div className="container mt-5">
-      <h1>Request Password Reset:</h1>
+      <h1>Request Id Reset:</h1>
       <form onSubmit={onSubmit}>
         <div className="form-group">
           <input
@@ -50,11 +49,11 @@ const ResetPassword = ({ reset_password }) => {
           />
         </div>
         <button className="btn btn-primary" type="submit">
-          Reset password
+          Reset Id
         </button>
       </form>
     </div>
   );
 };
 
-export default connect(null, { reset_password })(ResetPassword);
+export default connect(null, { Find_Id })(FindId);

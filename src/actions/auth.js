@@ -6,6 +6,16 @@ import {
   USER_LOADED_SUCCESS,
   AUTHENTICATED_SUCCESS,
   AUTHENTICATED_FAIL,
+  PASSWORD_RESET_SUCCESS,
+  PASSWORD_RESET_FAIL,
+  PASSWORD_RESET_CONFIRM_SUCCESS,
+  PASSWORD_RESET_CONFIRM_FAIL,
+  FIND_ID_FAIL,
+  FIND_ID_SUCCESS,
+  SIGNUP_FAIL,
+  SIGNUP_SUCCESS,
+  ACTIVATION_FAIL,
+  ACTIVATION_SUCCESS,
   LOGOUT,
 } from "./types";
 
@@ -17,17 +27,19 @@ export const checkAuthenticated = () => async (dispatch) => {
         Accept: "application/json",
       },
     };
-
+    console.log("checkAuthenticated");
     const body = JSON.stringify({ token: localStorage.getItem("access") });
 
     try {
       const res = await axios.post(
-        `http://112.221.126.138:10000/api/testing/jwt/verify/`,
+        `http://112.221.126.139:10000/api/testing/jwt/verify/`,
         body,
         config
       );
-
+      console.log(res);
+      console.log(res.config.data);
       if (res.data.code !== "token_not_valid") {
+        console.log(res.data.code);
         dispatch({
           type: AUTHENTICATED_SUCCESS,
         });
@@ -49,8 +61,8 @@ export const checkAuthenticated = () => async (dispatch) => {
 };
 
 export const load_user = () => async (dispatch) => {
+  console.log("load_user");
   if (localStorage.getItem("access")) {
-    console.log("load_user1");
     // const config = {
     //   Headers: {
     //     "Content-Type": "application/json",
@@ -59,17 +71,13 @@ export const load_user = () => async (dispatch) => {
     //   },
     // };
     try {
-      console.log(`JWT ${localStorage.getItem("access")}`);
-      const res = await axios
-        .get(`http://112.221.126.138:10000/api/testing/users/me/`, {
-          Headers: {
-            "Content-Type": "application/json",
-            Authorization: `JWT ${localStorage.getItem("access")}`,
-            Accept: "application/json",
-          },
-        })
+      axios.defaults.headers.common[
+        "Authorization"
+      ] = `JWT ${localStorage.getItem("access")}`;
+      await axios
+        .get(`http://112.221.126.139:10000/api/testing/users/me/`)
         .then(function (res) {
-          console.log(res);
+          console.log(res, "res");
           dispatch({
             type: USER_LOADED_SUCCESS,
             payload: res.data,
@@ -94,12 +102,10 @@ export const login = (username, password) => async (dispatch) => {
       "Content-Type": "application/json",
     },
   };
-  // const userInfo = { username: username, password: password };
-  //const body = JSON.stringify(username, password);
 
   try {
-    const res = await axios
-      .post("http://112.221.126.138:10000/api/testing/jwt/create/", {
+    await axios
+      .post("http://112.221.126.139:10000/api/testing/jwt/create/", {
         username: username,
         password: password,
         config,
@@ -118,6 +124,152 @@ export const login = (username, password) => async (dispatch) => {
     });
   }
 };
+
+export const signup =
+  (
+    username,
+    password,
+    re_password,
+    phonenumber,
+    company,
+    position,
+    name,
+    email
+  ) =>
+  async (dispatch) => {
+    try {
+      await axios
+        .post("http://112.221.126.139:10000/api/testing/users/", {
+          username: username,
+          password: password,
+          re_password: re_password,
+          phonenumber: phonenumber,
+          company: company,
+          position: position,
+          name: name,
+          email: email,
+        })
+        .then(function (res) {
+          console.log(res);
+          dispatch({
+            type: SIGNUP_SUCCESS,
+            payload: res.data,
+          });
+        });
+    } catch (err) {
+      dispatch({
+        type: SIGNUP_FAIL,
+      });
+    }
+  };
+
+export const verify = (uid, token) => async (dispatch) => {
+  const config = {
+    Headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  try {
+    await axios.post(
+      "http://112.221.126.139:10000/api/testing/users/activation/",
+      {
+        uid: uid,
+        token: token,
+        config,
+      }
+    );
+    dispatch({
+      type: ACTIVATION_SUCCESS,
+    });
+  } catch (err) {
+    dispatch({
+      type: ACTIVATION_FAIL,
+    });
+  }
+};
+
+export const reset_password = (email) => async (dispatch) => {
+  const config = {
+    Headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  try {
+    await axios.post(
+      `http://112.221.126.139:10000/api/testing/users/reset_password/`,
+      {
+        email: email,
+        config,
+      }
+    );
+
+    dispatch({
+      type: PASSWORD_RESET_SUCCESS,
+    });
+  } catch (err) {
+    dispatch({
+      type: PASSWORD_RESET_FAIL,
+    });
+  }
+};
+
+export const Find_Id = (email) => async (dispatch) => {
+  const config = {
+    Headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  try {
+    await axios.post(
+      `http://112.221.126.139:10000/api/testing/users/reset_username/`,
+      {
+        email: email,
+        config,
+      }
+    );
+
+    dispatch({
+      type: FIND_ID_SUCCESS,
+    });
+  } catch (err) {
+    dispatch({
+      type: FIND_ID_FAIL,
+    });
+  }
+};
+
+export const reset_password_confirm =
+  (uid, token, new_password, re_new_password) => async (dispatch) => {
+    const config = {
+      Headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    try {
+      await axios.post(
+        `http://112.221.126.139:10000/api/testing/users/reset_password_confirm/`,
+        {
+          uid: uid,
+          token: token,
+          new_password: new_password,
+          re_new_password: re_new_password,
+          config,
+        }
+      );
+
+      dispatch({
+        type: PASSWORD_RESET_CONFIRM_SUCCESS,
+      });
+    } catch (err) {
+      dispatch({
+        type: PASSWORD_RESET_CONFIRM_FAIL,
+      });
+    }
+  };
 
 export const logout = () => (dispatch) => {
   dispatch({

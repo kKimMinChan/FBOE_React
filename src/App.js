@@ -9,6 +9,8 @@ import Activate from "./containers/Activate";
 
 import { Provider } from "react-redux";
 import store from "./store";
+import Main from "./containers/main";
+import FindId from "./containers/FindId";
 
 function App() {
   return (
@@ -20,11 +22,13 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/FindId" element={<FindId />} />
             <Route
               path="/password/reset/confirm/:uid/:token"
               element={<ResetPasswordConfirm />}
             />
-            <Route path="/activate/:uid/:token" element={<Activate />} />
+            <Route path="/activation/:uid/:token" element={<Activate />} />
+            <Route path="/main/:uid/:token" element={<Main />} />
           </Routes>
         </Layout>
       </Router>

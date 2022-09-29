@@ -7,7 +7,7 @@ const Layout = (props) => {
   useEffect(() => {
     props.checkAuthenticated();
     props.load_user();
-  }, []);
+  }, [props]);
 
   return (
     <div>
