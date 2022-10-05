@@ -16,9 +16,45 @@ import {
   SIGNUP_SUCCESS,
   ACTIVATION_FAIL,
   ACTIVATION_SUCCESS,
+  REFRESH_SUCCESS,
+  REFRESH_FAIL,
   LOGOUT,
 } from "./types";
 
+export const refreshToken = () => async (dispatch) => {
+  if (localStorage.getItem("access")) {
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    };
+    const token = JSON.stringify({ refresh: localStorage.getItem("refresh") });
+    try {
+      await axios
+        .post(
+          `http://112.221.126.139:10000/api/testing/jwt/refresh/`,
+          token,
+          config
+        )
+        .then(function (res) {
+          dispatch({
+            type: REFRESH_SUCCESS,
+            payload: res.data,
+          });
+        });
+    } catch (err) {
+      console.log(err);
+      dispatch({
+        type: REFRESH_FAIL,
+      });
+    }
+  } else {
+    dispatch({
+      type: AUTHENTICATED_FAIL,
+    });
+  }
+};
 export const checkAuthenticated = () => async (dispatch) => {
   if (localStorage.getItem("access")) {
     const config = {
@@ -27,7 +63,6 @@ export const checkAuthenticated = () => async (dispatch) => {
         Accept: "application/json",
       },
     };
-    console.log("checkAuthenticated");
     const body = JSON.stringify({ token: localStorage.getItem("access") });
 
     try {
@@ -36,8 +71,6 @@ export const checkAuthenticated = () => async (dispatch) => {
         body,
         config
       );
-      console.log(res);
-      console.log(res.config.data);
       if (res.data.code !== "token_not_valid") {
         console.log(res.data.code);
         dispatch({
@@ -49,6 +82,7 @@ export const checkAuthenticated = () => async (dispatch) => {
         });
       }
     } catch (err) {
+      console.log(err);
       dispatch({
         type: AUTHENTICATED_FAIL,
       });
@@ -61,15 +95,7 @@ export const checkAuthenticated = () => async (dispatch) => {
 };
 
 export const load_user = () => async (dispatch) => {
-  console.log("load_user");
   if (localStorage.getItem("access")) {
-    // const config = {
-    //   Headers: {
-    //     "Content-Type": "application/json",
-    //     Authorization: `JWT ${localStorage.getItem("access")}`,
-    //     Accept: "application/json",
-    //   },
-    // };
     try {
       axios.defaults.headers.common[
         "Authorization"
@@ -77,7 +103,6 @@ export const load_user = () => async (dispatch) => {
       await axios
         .get(`http://112.221.126.139:10000/api/testing/users/me/`)
         .then(function (res) {
-          console.log(res, "res");
           dispatch({
             type: USER_LOADED_SUCCESS,
             payload: res.data,
@@ -111,7 +136,6 @@ export const login = (username, password) => async (dispatch) => {
         config,
       })
       .then(function (res) {
-        console.log(res);
         dispatch({
           type: LOGIN_SUCCESS,
           payload: res.data,

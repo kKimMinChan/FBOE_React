@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <div className="container">
       <div className="jumbotron mt-5">
-        <h1 className="display-4">Welcome to Auth System!</h1>
+        <h1 className="display-4">Welcome to neuralDrop!</h1>
         <p className="lead">
           This is an incredible authentication system with production level
           features!

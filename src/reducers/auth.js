@@ -15,6 +15,8 @@ import {
   SIGNUP_SUCCESS,
   ACTIVATION_FAIL,
   ACTIVATION_SUCCESS,
+  REFRESH_SUCCESS,
+  REFRESH_FAIL,
   LOGOUT,
 } from "../actions/types";
 
@@ -26,19 +28,31 @@ const initialState = {
 };
 
 export default function (state = initialState, action) {
-  console.log(state);
   const { type, payload } = action;
-  //console.log(action);
 
   switch (type) {
+    case REFRESH_SUCCESS:
+      localStorage.setItem("access", payload.access);
+      localStorage.setItem("refresh", payload.refresh);
+      return {
+        ...state,
+        isAuthenticated: true,
+        access: payload.access,
+        refresh: payload.refresh,
+      };
+    case REFRESH_FAIL:
+      return {
+        ...state,
+        isAuthenticated: false,
+      };
     case AUTHENTICATED_SUCCESS:
       return {
         ...state,
         isAuthenticated: true,
       };
     case LOGIN_SUCCESS:
-      console.log(LOGIN_SUCCESS, payload);
       localStorage.setItem("access", payload.access);
+      localStorage.setItem("refresh", payload.refresh);
       return {
         ...state,
         isAuthenticated: true,
@@ -51,22 +65,16 @@ export default function (state = initialState, action) {
         isAuthenticated: false,
       };
     case USER_LOADED_SUCCESS:
-      console.log(USER_LOADED_SUCCESS);
-      console.log(payload, "payload");
       return {
         ...state,
         user: payload,
       };
     case AUTHENTICATED_FAIL:
-      localStorage.removeItem("access");
-      localStorage.removeItem("refresh");
       return {
         ...state,
         isAuthenticated: false,
       };
     case USER_LOADED_FAIL:
-      localStorage.removeItem("access");
-      localStorage.removeItem("refresh");
       return {
         ...state,
         user: null,

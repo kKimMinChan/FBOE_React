@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 import { connect } from "react-redux";
 import Navbar from "../components/Navbar";
-import { checkAuthenticated, load_user } from "../actions/auth";
+import { checkAuthenticated, load_user, refreshToken } from "../actions/auth";
 
 const Layout = (props) => {
   useEffect(() => {
+    props.refreshToken();
     props.checkAuthenticated();
     props.load_user();
   }, [props]);
@@ -17,4 +18,6 @@ const Layout = (props) => {
   );
 };
 
-export default connect(null, { checkAuthenticated, load_user })(Layout);
+export default connect(null, { checkAuthenticated, load_user, refreshToken })(
+  Layout
+);

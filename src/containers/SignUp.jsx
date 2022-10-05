@@ -1,12 +1,16 @@
 import { useState } from "react";
-import { Link, Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
 import { signup } from "../actions/auth";
 import "./Login.css";
+import { useEffect } from "react";
 
 const Signup = ({ signup, isAuthenticated }) => {
   let navigate = useNavigate();
+  const [passwordChk, setPasswordChk] = useState(false);
   const [accountCreated, setAccountCreated] = useState(false);
+  const [termError, setTermError] = useState(false);
+
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -29,14 +33,18 @@ const Signup = ({ signup, isAuthenticated }) => {
     email,
   } = formData;
 
+  const specialLetter = password.search(/[`~!@@#$%^&*|₩₩₩'₩";:₩/?]/gi);
+  // 특수문자 1자 이상, 전체 8자 이상일것.
+  const isValidPassword = password.length >= 8 && specialLetter >= 1;
+
   function onChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setPasswordChk(e.target.value === password);
   }
 
   function onSubmit(e) {
     e.preventDefault();
-    //setIsLoading(true);
-    if (password === re_password) {
+    if (passwordChk && isValidPassword === true && termError === true) {
       signup(
         username,
         password,
@@ -49,20 +57,23 @@ const Signup = ({ signup, isAuthenticated }) => {
       );
       setAccountCreated(true);
     }
-    //setFormData({ username: "", password: "" });
-    //setIsLoading(false);
   }
 
-  // Is the user authenticated?
-  // Redirect them to the home page
-  //let history = useHistory();
+  // if (isAuthenticated) {
+  //   return navigate("/");
+  // }
+  // if (accountCreated) {
+  //   return navigate("/login");
+  // }
 
-  if (isAuthenticated) {
-    return navigate("/");
-  }
-  if (accountCreated) {
-    return navigate("/login");
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      return navigate("/");
+    }
+    if (accountCreated) {
+      return navigate("/login");
+    }
+  }, [navigate, isAuthenticated, accountCreated]);
 
   return (
     <div className="container mt-5">
@@ -82,6 +93,7 @@ const Signup = ({ signup, isAuthenticated }) => {
         </div>
         <div className="form-group">
           <input
+            autoComplete="on"
             type="password"
             className="form-control"
             placeholder="password"
@@ -91,9 +103,15 @@ const Signup = ({ signup, isAuthenticated }) => {
             minLength="6"
             required
           />
+          {isValidPassword === false && (
+            <div style={{ color: "red" }}>
+              특수문자 1자 이상, 전체 8자이상 입력
+            </div>
+          )}
         </div>
         <div className="form-group">
           <input
+            autoComplete="on"
             type="password"
             className="form-control"
             placeholder="re_password"
@@ -103,6 +121,9 @@ const Signup = ({ signup, isAuthenticated }) => {
             minLength="6"
             required
           />
+          {!passwordChk && (
+            <div style={{ color: "red" }}>비밀번호가 일치하지 않습니다.</div>
+          )}
         </div>
         <div className="form-group">
           <input
